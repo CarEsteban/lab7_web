@@ -5,25 +5,61 @@
     <title>Juego de Memoria REACT</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style>
+      /* Fondo general inspirado en el portal de Rick */
       body {
-        width: auto;
-        height: auto;
-        text-align: center;
-        background-color: #a3ccf0;
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        background: radial-gradient(circle at 30% 30%, #a8ff78, #78ffd6, #00c3ff);
+        font-family: 'Poppins', sans-serif;
       }
 
+      /* Título estilo Rick and Morty moderno */
+      h1 {
+        margin-top: 30px;
+        font-size: 2.8rem;
+        color: #1b1b1b;
+        text-shadow: 2px 2px 6px #00ff9d, 0 0 10px #00c3ff;
+      }
+
+      /* Contenedor de las cartas */
       .container {
-        width: 700px;
-        height: 700px;
+        width: 720px;
+        height: 720px;
         display: grid;
         grid-template-columns: repeat(4, 1fr);
-        gap: 10px;
-        margin: 0 auto;
+        gap: 15px;
+        margin: 40px auto;
         padding: 20px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 25px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(8px);
+      }
+
+      /* Cartas */
+      .card {
+        background: linear-gradient(145deg, #00ff9d, #00c3ff);
+        border-radius: 20px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+        cursor: pointer;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        position: relative;
+      }
+
+      /* Hover efecto */
+      .card:hover {
+        transform: translateY(-5px) scale(1.05);
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
       }
     </style>
 
-    <!-- Agregar React + ReactDOM + Babel -->
+    <!-- React + ReactDOM + Babel -->
     <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -36,7 +72,7 @@
       function MemoryGame() {
         return (
           <main>
-            <h1>Bienvenido a mi juego de memoria</h1>
+            <h1>Bienvenido a mi juego de memoria</h1>         
             <Tablero />
           </main>
         );
@@ -45,48 +81,96 @@
       function Tablero() {
         const [cards, setCards] = React.useState([]);
         const [loading, setLoading] = React.useState(true);
+        const [seleccionadas, setSeleccionadas] = React.useState([]);
+        const [movimientos, setMovimientos] = React.useState(0);
+        const [ganaste, setGanaste] = React.useState(false);
 
         React.useEffect(() => {
-          async function fetchData() {
-            try {
-              const respuesta = await fetch('https://rickandmortyapi.com/api/character');
-              const data = await respuesta.json();
-
-              const personajes = data.results.slice(0, 8);
-
-              const imagenesPersonajes = personajes.map((personaje, index) => ({
-                id: index + "-a",
-                imagen: personaje.image,
-                volteada: false
-              }));
-
-              const duplicarImagenes = [
-                ...imagenesPersonajes,
-                ...imagenesPersonajes.map(card => ({
-                  ...card,
-                  id: card.id.replace("-a", "-b")
-                }))
-              ];
-
-              const mezclarImagenes = [...duplicarImagenes]
-                .sort(() => Math.random() - 0.5)
-                .sort(() => Math.random() - 0.5);
-
-              setCards(mezclarImagenes);
-            } catch (error) {
-              console.error('Error fetching data:', error);
-            } finally {
-              setLoading(false);
-            }
+          if (cards.length > 0 && cards.every(card => card.volteada)) {
+            setGanaste(true);
           }
+        }, [cards]);
 
+        async function fetchData() {
+          try {
+            const respuesta = await fetch('https://rickandmortyapi.com/api/character');
+            const data = await respuesta.json();
+      
+            const mezclados = [...data.results].sort(() => Math.random() - 0.5);
+            const personajes = mezclados.slice(0, 8);
+      
+            const imagenesPersonajes = personajes.map((personaje, index) => ({
+              id: index + "-a",
+              imagen: personaje.image,
+              volteada: false
+            }));
+      
+            const duplicarImagenes = [
+              ...imagenesPersonajes,
+              ...imagenesPersonajes.map(card => ({
+                ...card,
+                id: card.id.replace("-a", "-b")
+              }))
+            ];
+      
+            const mezclarImagenes = [...duplicarImagenes]
+              .sort(() => Math.random() - 0.5)
+              .sort(() => Math.random() - 0.5);
+      
+            setCards(mezclarImagenes);
+          } catch (error) {
+            console.error('Error fetching data:', error);
+          } finally {
+            setLoading(false);
+          }
+        }
+      
+        React.useEffect(() => {
           fetchData();
         }, []);
+      
+        function reiniciarJuego() {
+          setLoading(true);
+          setGanaste(false);
+          setMovimientos(0);
+          setSeleccionadas([]);
+          fetchData();
+        }
+        React.useEffect(() => {
+          if (seleccionadas.length === 2) {
+            const [firstIndex, secondIndex] = seleccionadas;
+            const firstCard = cards[firstIndex];
+            const secondCard = cards[secondIndex];
+
+            if (firstCard.imagen !== secondCard.imagen) {
+              setTimeout(() => {
+                const newCards = [...cards];
+                newCards[firstIndex].volteada = false;
+                newCards[secondIndex].volteada = false;
+                setCards(newCards);
+              }, 1000);
+            }
+
+            setTimeout(() => {
+              setSeleccionadas([]);
+            }, 1000);
+          }
+        }, [seleccionadas]);
 
         function handleClick(index) {
+          const cartaSeleccionada = cards[index];
+
+          if (cartaSeleccionada.volteada || seleccionadas.length === 2) {
+            return;
+          }
+
           const newCards = [...cards];
-          newCards[index].volteada = !newCards[index].volteada;
+          newCards[index].volteada = true;
           setCards(newCards);
+
+          setSeleccionadas([...seleccionadas, index]);
+
+          setMovimientos(movimientos + 1)
         }
 
         if (loading) {
@@ -94,19 +178,81 @@
         }
 
         return (
-          <div className="container">
+          <>
+            <h2 style={{ color: "#1b1b1b", marginTop: "10px" }}>
+              Movimientos: {movimientos}
+            </h2>
+        
+            {ganaste && (
+              <div style={{
+                position: "fixed",
+                top: 0,
+                left: 0,
+                width: "100%",
+                height: "100%",
+                backgroundColor: "rgba(0, 0, 0, 0.7)",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                zIndex: 1000
+              }}>
+                <div style={{
+                  background: "#ffffff",
+                  padding: "40px",
+                  borderRadius: "20px",
+                  textAlign: "center",
+                  boxShadow: "0 8px 24px rgba(0,0,0,0.5)",
+                }}>
+                  <h2 style={{
+                    fontSize: "2.5rem",
+                    color: "#00c3ff",
+                    marginBottom: "20px",
+                    textShadow: "1px 1px 5px #00ff9d"
+                  }}>
+                    ¡Ganaste el juego! 🎉
+                  </h2>
+                  <p style={{
+                    fontSize: "1.5rem",
+                    color: "#1b1b1b",
+                    marginBottom: "20px"
+                  }}>
+                    Has encontrado todas las parejas en {movimientos} movimientos.
+                  </p>
+                  <button
+                    onClick={reiniciarJuego}
+                    style={{
+                      marginTop: "20px",
+                      padding: "10px 20px",
+                      fontSize: "18px",
+                      borderRadius: "10px",
+                      border: "none",
+                      background: "#00c3ff",
+                      color: "#fff",
+                      cursor: "pointer",
+                      boxShadow: "0 4px 10px rgba(0, 0, 0, 0.2)",
+                      transition: "transform 0.2s",
+                    }}
+                    onMouseOver={(e) => e.target.style.transform = "scale(1.05)"}
+                    onMouseOut={(e) => e.target.style.transform = "scale(1)"}
+                  >
+                    Reiniciar Juego
+                  </button>
+
+                </div>
+              </div>
+            )}
+            
+            <div className="container">
             {cards.map((card, index) => (
               <div
                 key={card.id}
                 className="card"
                 onClick={() => handleClick(index)}
                 style={{
-                  backgroundColor: "#ccc",
                   width: "100%",
                   position: "relative",
                   paddingTop: "100%",
                   overflow: "hidden",
-                  cursor: "pointer"
                 }}
               >
                 {card.volteada ? (
@@ -130,12 +276,13 @@
                       left: 0,
                       width: "100%",
                       height: "100%",
-                      backgroundColor: "#ccc",
+                      background: "linear-gradient(145deg, #00ff9d, #00c3ff)",
                       display: "flex",
                       justifyContent: "center",
                       alignItems: "center",
-                      fontSize: "24px",
-                      color: "#fff"
+                      fontSize: "28px",
+                      color: "#0e0e0e",
+                      fontWeight: "bold",
                     }}
                   >
                     ?
@@ -144,7 +291,8 @@
               </div>
             ))}
           </div>
-        );
+        
+          </>);
       }
 
       const root = ReactDOM.createRoot(document.getElementById("root"));
