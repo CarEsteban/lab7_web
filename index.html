@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Juego de Memoria REACT</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      body {
+        width: auto;
+        height: auto;
+        text-align: center;
+        background-color: #a3ccf0;
+      }
+
+      </style>
+
+    <!-- Agregar React + ReactDOM + Babel -->
+    <script
+      src="https://unpkg.com/react@18/umd/react.development.js"
+      crossorigin
+    ></script>
+    <script
+      src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"
+      crossorigin
+    ></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+      function MemoryGame(){
+        return (
+          <main>
+            <h1>Bienvenido a mi juego de memoria</h1>
+          </main>
+        );
+      }
+
+      const root = ReactDOM.createRoot(document.getElementById("root"));
+      root.render(<MemoryGame />);
+
+
+    </script>
+  </body>
+</html>
