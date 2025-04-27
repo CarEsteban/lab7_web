@@ -12,35 +12,143 @@
         background-color: #a3ccf0;
       }
 
-      </style>
+      .container {
+        width: 700px;
+        height: 700px;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+    </style>
 
     <!-- Agregar React + ReactDOM + Babel -->
-    <script
-      src="https://unpkg.com/react@18/umd/react.development.js"
-      crossorigin
-    ></script>
-    <script
-      src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"
-      crossorigin
-    ></script>
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   </head>
+
   <body>
     <div id="root"></div>
 
     <script type="text/babel">
-      function MemoryGame(){
+      function MemoryGame() {
         return (
           <main>
             <h1>Bienvenido a mi juego de memoria</h1>
+            <Tablero />
           </main>
+        );
+      }
+
+      function Tablero() {
+        const [cards, setCards] = React.useState([]);
+        const [loading, setLoading] = React.useState(true);
+
+        React.useEffect(() => {
+          async function fetchData() {
+            try {
+              const respuesta = await fetch('https://rickandmortyapi.com/api/character');
+              const data = await respuesta.json();
+
+              const personajes = data.results.slice(0, 8);
+
+              const imagenesPersonajes = personajes.map((personaje, index) => ({
+                id: index + "-a",
+                imagen: personaje.image,
+                volteada: false
+              }));
+
+              const duplicarImagenes = [
+                ...imagenesPersonajes,
+                ...imagenesPersonajes.map(card => ({
+                  ...card,
+                  id: card.id.replace("-a", "-b")
+                }))
+              ];
+
+              const mezclarImagenes = [...duplicarImagenes]
+                .sort(() => Math.random() - 0.5)
+                .sort(() => Math.random() - 0.5);
+
+              setCards(mezclarImagenes);
+            } catch (error) {
+              console.error('Error fetching data:', error);
+            } finally {
+              setLoading(false);
+            }
+          }
+
+          fetchData();
+        }, []);
+
+        function handleClick(index) {
+          const newCards = [...cards];
+          newCards[index].volteada = !newCards[index].volteada;
+          setCards(newCards);
+        }
+
+        if (loading) {
+          return <h1>Cargando...</h1>;
+        }
+
+        return (
+          <div className="container">
+            {cards.map((card, index) => (
+              <div
+                key={card.id}
+                className="card"
+                onClick={() => handleClick(index)}
+                style={{
+                  backgroundColor: "#ccc",
+                  width: "100%",
+                  position: "relative",
+                  paddingTop: "100%",
+                  overflow: "hidden",
+                  cursor: "pointer"
+                }}
+              >
+                {card.volteada ? (
+                  <img
+                    src={card.imagen}
+                    alt="Personaje"
+                    style={{
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                    }}
+                  />
+                ) : (
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      width: "100%",
+                      height: "100%",
+                      backgroundColor: "#ccc",
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      fontSize: "24px",
+                      color: "#fff"
+                    }}
+                  >
+                    ?
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
         );
       }
 
       const root = ReactDOM.createRoot(document.getElementById("root"));
       root.render(<MemoryGame />);
-
-
     </script>
   </body>
 </html>
