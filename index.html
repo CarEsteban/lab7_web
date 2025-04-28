@@ -111,6 +111,28 @@
       .card-back img:hover {
         transform: scale(1.05);
       }
+
+      .github-button {
+        position: fixed;
+        bottom: 50px;
+        left: 50px;
+        padding: 20px 30px;
+        background: #24292e;
+        color: white;
+        text-decoration: none;
+        border-radius: 10px;
+        font-size: 24px;
+        font-weight: bold;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        transition: background 0.3s ease, transform 0.2s ease;
+        z-index: 999;
+      }
+      
+      .github-button:hover {
+        background: #0366d6;
+        transform: scale(1.05);
+      }
+      
     </style>
     
 
@@ -129,6 +151,13 @@
           <main>
             <h1>Rick and Morty - Juego de memoria</h1>         
             <Tablero />
+            <a 
+            href="https://github.com/CarEsteban/lab7_web" 
+            target="_blank" 
+            className="github-button"
+          >
+            Repositorio
+          </a>
           </main>
         );
       }
