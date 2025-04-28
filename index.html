@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <title>Juego de Memoria REACT</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    
     <style>
       /* Fondo general inspirado en el portal de Rick */
       body {
@@ -43,15 +44,17 @@
     
       /* Cada carta */
       .card {
-        background: linear-gradient(145deg, #00ff9d, #00c3ff);
         border-radius: 20px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
         overflow: hidden;
         cursor: pointer;
         position: relative;
         perspective: 1000px; /* Necesario para efecto 3D */
+        background: none; /* No fondo aquí */
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
       }
     
+      /* Hover efecto */
       .card:hover {
         transform: translateY(-5px) scale(1.05);
         box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
@@ -81,14 +84,14 @@
         backface-visibility: hidden;
         border-radius: 20px;
         overflow: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
       }
     
       /* Parte delantera (¿?) */
       .card-front {
         background: linear-gradient(145deg, #00ff9d, #00c3ff);
-        display: flex;
-        align-items: center;
-        justify-content: center;
         font-size: 2rem;
         font-weight: bold;
         color: #0e0e0e;
@@ -96,9 +99,19 @@
     
       /* Parte trasera (imagen) */
       .card-back {
+        background: linear-gradient(145deg, #00ff9d, #00c3ff);
         transform: rotateY(180deg);
       }
+    
+      /* Imagen dentro de la carta trasera */
+      .card-back img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 20px;
+      }
     </style>
+    
     
 
     <!-- React + ReactDOM + Babel -->
@@ -114,7 +127,7 @@
       function MemoryGame() {
         return (
           <main>
-            <h1>Bienvenido a mi juego de memoria</h1>         
+            <h1>Rick and Morty - Juego de memoria</h1>         
             <Tablero />
           </main>
         );
@@ -297,14 +310,14 @@
                     ?
                   </div>
                   <div className="card-back">
-                    <img
+                   <img
                       src={card.imagen}
                       alt="Personaje"
                       style={{
                         width: "100%",
                         height: "100%",
                         objectFit: "cover",
-                        borderRadius: "20px"
+                        borderRadius: "20px",
                       }}
                     />
                   </div>
